@@ -40,9 +40,45 @@ export default function Dashboard() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // kasih info kalo file kegedean
+    if (file.size > 500 * 1024) {
+      console.log("File gede, lagi di kompres...", file.size);
+    }
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setForm({ ...form, image: reader.result });
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.src = ev.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        // max lebar 800px biar kecil
+        let width = img.width;
+        let height = img.height;
+        const maxW = 800;
+        if (width > maxW) {
+          height = height * (maxW / width);
+          width = maxW;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // kompres jadi jpeg 60% - ini bikin dari 3MB jadi ~100KB
+        let compressed = canvas.toDataURL("image/jpeg", 0.6);
+
+        // kalo masih > 900KB, kompres lagi lebih kecil
+        if (compressed.length > 900 * 1024) {
+          compressed = canvas.toDataURL("image/jpeg", 0.4);
+        }
+
+        console.log(
+          "Ukuran akhir:",
+          Math.round(compressed.length / 1024) + "KB",
+        );
+        setForm({ ...form, image: compressed });
+      };
     };
     reader.readAsDataURL(file);
   };
