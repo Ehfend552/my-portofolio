@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { db } from "../firebase";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import project3 from "../assets/Screenshot.png";
 import project5 from "../assets/2.png";
 
@@ -41,19 +43,26 @@ const staticProjects = [
 ];
 
 export default function Portfolio() {
-  // === INI TAMBAHAN BUAT NYAMBUNG KE DASHBOARD - CUMA 5 BARIS ===
   const [dynamicProjects, setDynamicProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("projects") || "[]");
-    setDynamicProjects(saved);
+    // Ambil realtime dari Firebase
+    const q = query(collection(db, "projects"));
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      // urut paling baru dulu
+      data.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      setDynamicProjects(data);
+      setLoading(false);
+    });
+    return () => unsub();
   }, []);
-  // GABUNGIN PROJECT LAMA + BARU DARI DASHBOARD
+
   const allProjects = [...staticProjects, ...dynamicProjects];
-  // ==============================================================
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white px-10 md:px-16 pt-32 pb-20">
-      {/* HEADER */}
       <div className="max-w-[1600px] mx-auto flex justify-between items-end border-b border-zinc-800 pb-12 mb-16">
         <div>
           <div className="w-20 h-1 bg-sky-500 mb-8"></div>
@@ -62,18 +71,27 @@ export default function Portfolio() {
             <br />
             <span className="text-[#8FFFE0]">Work</span>
           </h1>
+          {loading && (
+            <p className="text-[11px] text-zinc-500 mt-3">
+              Loading Firebase...
+            </p>
+          )}
         </div>
         <p className="text-zinc-400 text-[13px] leading-[1.7] max-w-[320px] text-right hidden md:block">
-          A collection of my recent work. <br />
-          Focused on clean code and <br />
-          modern user experience.
+          A collection of my recent work. <br /> Focused on clean code and{" "}
+          <br /> modern user experience.
         </p>
       </div>
 
-      {/* GRID PROJECT - SEKARANG PAKE allProjects */}
       <div className="max-w-[1600px] mx-auto grid md:grid-cols-2 gap-10">
         {allProjects.map((p) => (
-          <a key={p.id} href={p.link} target="_blank" className="group">
+          <a
+            key={p.id}
+            href={p.link}
+            target="_blank"
+            rel="noreferrer"
+            className="group"
+          >
             <div className="overflow-hidden bg-[#181b25] aspect-[16/10]">
               <img
                 src={p.image}
@@ -98,7 +116,6 @@ export default function Portfolio() {
         ))}
       </div>
 
-      {/* CTA */}
       <div className="max-w-[1600px] mx-auto mt-24 text-center">
         <p className="text-zinc-500 text-[13px]">Want to see more?</p>
         <a
