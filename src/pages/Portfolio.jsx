@@ -59,7 +59,7 @@ export default function Portfolio() {
     return () => unsub();
   }, []);
 
-  const allProjects = [...staticProjects, ...dynamicProjects];
+  const allProjects = [...dynamicProjects, ...staticProjects];
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white px-10 md:px-16 pt-32 pb-20">

@@ -27,13 +27,26 @@ export default function Dashboard() {
     }
   }, [navigate]);
 
-  // GANTI localStorage JADI FIREBASE - Realtime
+  // FIREBASE REALTIME + ERROR HANDLER (INI YANG BIKIN KETAUAN KENAPA KOSONG)
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "projects"), (snapshot) => {
-      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setProjects(data);
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      collection(db, "projects"),
+      (snapshot) => {
+        const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        console.log("✅ DATA MASUK DARI FIREBASE:", data);
+        setProjects(data);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("❌ FIREBASE READ ERROR:", error);
+        alert(
+          "Gagal baca Firebase: " +
+            error.message +
+            "\nCek Rules atau firebase.js",
+        );
+        setLoading(false);
+      },
+    );
     return () => unsub();
   }, []);
 
@@ -41,7 +54,6 @@ export default function Dashboard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // kasih info kalo file kegedean
     if (file.size > 500 * 1024) {
       console.log("File gede, lagi di kompres...", file.size);
     }
@@ -52,7 +64,6 @@ export default function Dashboard() {
       img.src = ev.target.result;
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        // max lebar 800px biar kecil
         let width = img.width;
         let height = img.height;
         const maxW = 800;
@@ -64,15 +75,10 @@ export default function Dashboard() {
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
-
-        // kompres jadi jpeg 60% - ini bikin dari 3MB jadi ~100KB
         let compressed = canvas.toDataURL("image/jpeg", 0.6);
-
-        // kalo masih > 900KB, kompres lagi lebih kecil
         if (compressed.length > 900 * 1024) {
           compressed = canvas.toDataURL("image/jpeg", 0.4);
         }
-
         console.log(
           "Ukuran akhir:",
           Math.round(compressed.length / 1024) + "KB",
@@ -87,14 +93,19 @@ export default function Dashboard() {
     e.preventDefault();
     if (!form.title) return alert("Judul wajib diisi!");
     if (!form.image) return alert("Upload gambar dulu bro!");
+
     try {
-      await addDoc(collection(db, "projects"), {
+      console.log("Lagi nyoba save ke Firebase...");
+      const docRef = await addDoc(collection(db, "projects"), {
         ...form,
         createdAt: Date.now(),
       });
+      console.log("✅ SUKSES KE FIREBASE ID:", docRef.id);
+      alert("SUKSES! Masuk Firebase!");
       setForm({ title: "", category: "", link: "", image: "" });
       setShowModal(false);
     } catch (err) {
+      console.error("❌ GAGAL SAVE:", err);
       alert("Gagal save: " + err.message);
     }
   };
