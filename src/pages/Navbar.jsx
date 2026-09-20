@@ -36,7 +36,7 @@ export default function Navbar() {
       >
         <div className="flex items-center gap-2">
           <img
-            src={`${import.meta.env.BASE_URL}/fs-logo.png`}
+            src={`${import.meta.env.BASE_URL}fs-logo.png`}
             alt="logo"
             className="w-8 h-8 object-contain shrink-0"
             onError={(e) => console.log("LOGO GAGAL LOAD", e)}
