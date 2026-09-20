@@ -34,8 +34,17 @@ export default function Navbar() {
         to="/"
         className="flex items-center gap-2 font-bold text-sm tracking-wide shrink-0"
       >
-        <span className="text-[#7ff0d0]">&lt;/&gt;</span>
-        <span className="text-[#7ff0d0]">fendisetiawan</span>
+        <div className="flex items-center gap-2">
+          <img
+            src={`${import.meta.env.BASE_URL}/fs-logo.png`}
+            alt="logo"
+            className="w-8 h-8 object-contain shrink-0"
+            onError={(e) => console.log("LOGO GAGAL LOAD", e)}
+          />
+          <span className="font-bold text-[#7ff0d0] leading-none">
+            fendisetiawan
+          </span>
+        </div>
       </Link>
 
       {/* MENU DESKTOP - cuma muncul di lg (laptop ke atas) */}
@@ -124,7 +133,7 @@ export default function Navbar() {
             {isAdmin && (
               <Link
                 to="/dashboard"
-                className={`py-3 px-3 rounded-md ${pathname === "/dashboard" ? "bg-yellow-500/10 text-yellow-300" : "text-yellow-300"}`}
+                className={`py-3 px-3 rounded-md ${pathname === "/dashboard" ? "bg-yellow-500/10 text-white" : "text-zinc-400"}`}
               >
                 Dashboard
               </Link>

@@ -10,17 +10,29 @@ import fendi2 from "../assets/fendi2.png";
 
 export default function Home() {
   return (
-    <div className="relative min-h-[calc(100vh-64px)] bg-[#110f1a] text-white overflow-hidden px-6 md:px-8 lg:px-12 py-8 lg:py-10">
-      {/* FOTO - CUMA MUNCUL DI LAPTOP KE ATAS BIAR GA NUMPUK DI HP */}
+    <div className="relative min-h-[calc(100vh-64px)] bg-[#0f0e0e] text-white overflow-hidden px-6 md:px-8 lg:px-12 py-8 lg:py-10">
+      {/* === BACKDROP FS GEDE - FINAL VERSION === */}
       <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 bottom-0 w-[520px] xl:w-[580px] h-[85vh] z-0 pointer-events-none">
+        {/* GLOW GEDE - INI YANG GANTIIN BG HITAM BIAR GA FLAT */}
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#7ff0d0]/[0.18] rounded-full blur-[120px]" />
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#2d9cdb]/[0.15] rounded-full blur-[80px]" />
+
+        {/* LOGO FS BACKDROP GEDE - JADI BACKGROUND UTAMA */}
+        <img
+          src={`${import.meta.env.BASE_URL}fs-logo-transparent.png`}
+          alt=""
+          className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] object-contain opacity-[0.30] select-none mix-blend-screen border-0 outline-none bg-transparent"
+        />
+
+        {/* FOTO LU */}
         <img
           src={fendi2}
           alt="Fendi Setiawan"
-          className="w-full h-full object-cover object-top"
+          className="relative z-10 w-full h-full object-cover object-top drop-shadow-[0_0_60px_rgba(127,240,208,0.15)]"
         />
       </div>
 
-      {/* WRAPPER - KUNCINYA DISINI: flex-col di HP, flex-row di laptop */}
+      {/* WRAPPER */}
       <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start w-full max-w-7xl mx-auto gap-10 lg:gap-0">
         {/* KIRI */}
         <div className="w-full lg:w-[380px] pt-4 lg:pt-16">
@@ -34,12 +46,20 @@ export default function Home() {
             <span className="text-[#2d9cdb]">Developer</span>
           </h1>
 
-          {/* FOTO VERSI HP - MUNCUL DI TENGAH BIAR GA KEPOTONG */}
-          <div className="lg:hidden w-full flex justify-center my-8">
+          {/* FOTO VERSI HP */}
+          <div className="lg:hidden w-full flex justify-center my-8 relative">
+            {/* glow hp */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#7ff0d0]/20 rounded-full blur-[60px]" />
+            {/* backdrop HP */}
+            <img
+              src={`${import.meta.env.BASE_URL}fs-logo.png`}
+              alt=""
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] object-contain opacity-[0.20] pointer-events-none"
+            />
             <img
               src={fendi2}
               alt="Fendi Setiawan"
-              className="w-[280px] sm:w-[340px] h-auto object-cover rounded-2xl"
+              className="relative z-10 w-[280px] sm:w-[340px] h-auto object-cover rounded-2xl"
             />
           </div>
 

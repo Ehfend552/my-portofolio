@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore";
 import project3 from "../assets/Screenshot.png";
 import project5 from "../assets/2.png";
 
@@ -11,6 +11,9 @@ const staticProjects = [
     category: "Web App / React",
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800",
     link: "#",
+    fit: "cover",
+    posY: 50,
+    bg: "#000000",
   },
   {
     id: 2,
@@ -18,6 +21,9 @@ const staticProjects = [
     category: "Landing Page / Tailwind",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800",
     link: "#",
+    fit: "cover",
+    posY: 50,
+    bg: "#000000",
   },
   {
     id: 3,
@@ -25,6 +31,9 @@ const staticProjects = [
     category: "Portfolio / Next.js",
     image: project3,
     link: "https://ehfend552.github.io/portfolio-tailwind-css/",
+    fit: "cover",
+    posY: 50,
+    bg: "#000000",
   },
   {
     id: 4,
@@ -32,6 +41,9 @@ const staticProjects = [
     category: "Productivity / Fullstack",
     image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800",
     link: "#",
+    fit: "cover",
+    posY: 50,
+    bg: "#000000",
   },
   {
     id: 5,
@@ -39,6 +51,9 @@ const staticProjects = [
     category: "Bio Link Website",
     image: project5,
     link: "https://linkbio-fendi.vercel.app/",
+    fit: "cover",
+    posY: 50,
+    bg: "#000000",
   },
 ];
 
@@ -47,11 +62,9 @@ export default function Portfolio() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Ambil realtime dari Firebase
     const q = query(collection(db, "projects"));
     const unsub = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      // urut paling baru dulu
       data.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       setDynamicProjects(data);
       setLoading(false);
@@ -92,11 +105,21 @@ export default function Portfolio() {
             rel="noreferrer"
             className="group"
           >
-            <div className="overflow-hidden bg-[#181b25] aspect-[16/10]">
+            <div
+              className="overflow-hidden aspect-[16/10] flex items-center justify-center"
+              style={{
+                backgroundColor:
+                  p.fit === "contain" ? p.bg || "#181b25" : "#000",
+              }}
+            >
               <img
                 src={p.image}
                 alt={p.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+                className={`group-hover:scale-105 transition duration-700 ${p.fit === "contain" ? "w-auto h-auto max-w-full max-h-full p-6" : "w-full h-full"}`}
+                style={{
+                  objectFit: p.fit || "cover",
+                  objectPosition: `50% ${p.posY || 50}%`,
+                }}
               />
             </div>
             <div className="flex justify-between items-start mt-5">

@@ -14,6 +14,9 @@ export default function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [imgPosY, setImgPosY] = useState(50);
+  const [imgFit, setImgFit] = useState("cover");
+  const [imgBg, setImgBg] = useState("#131824");
   const [form, setForm] = useState({
     title: "",
     category: "",
@@ -27,7 +30,6 @@ export default function Dashboard() {
     }
   }, [navigate]);
 
-  // FIREBASE REALTIME + ERROR HANDLER (INI YANG BIKIN KETAUAN KENAPA KOSONG)
   useEffect(() => {
     const unsub = onSnapshot(
       collection(db, "projects"),
@@ -98,11 +100,17 @@ export default function Dashboard() {
       console.log("Lagi nyoba save ke Firebase...");
       const docRef = await addDoc(collection(db, "projects"), {
         ...form,
+        posY: imgPosY,
+        fit: imgFit,
+        bg: imgBg,
         createdAt: Date.now(),
       });
       console.log("✅ SUKSES KE FIREBASE ID:", docRef.id);
       alert("SUKSES! Masuk Firebase!");
       setForm({ title: "", category: "", link: "", image: "" });
+      setImgPosY(50);
+      setImgFit("cover");
+      setImgBg("#131824");
       setShowModal(false);
     } catch (err) {
       console.error("❌ GAGAL SAVE:", err);
@@ -114,6 +122,14 @@ export default function Dashboard() {
     if (confirm("Yakin mau hapus project ini?")) {
       await deleteDoc(doc(db, "projects", id));
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setForm({ title: "", category: "", link: "", image: "" });
+    setImgPosY(50);
+    setImgFit("cover");
+    setImgBg("#131824");
   };
 
   return (
@@ -181,11 +197,23 @@ export default function Dashboard() {
                 key={p.id}
                 className="flex gap-3 sm:gap-4 bg-[#0a0e17] p-3 sm:p-4 rounded border border-white/5"
               >
-                <img
-                  src={p.image}
-                  alt={p.title}
-                  className="w-[70px] h-[60px] sm:w-[90px] sm:h-[70px] object-cover rounded shrink-0"
-                />
+                <div
+                  className="w-[70px] h-[60px] sm:w-[90px] sm:h-[70px] rounded shrink-0 overflow-hidden flex items-center justify-center"
+                  style={{
+                    backgroundColor:
+                      p.fit === "contain" ? p.bg || "#131824" : "#000",
+                  }}
+                >
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className="w-full h-full"
+                    style={{
+                      objectFit: p.fit || "cover",
+                      objectPosition: `50% ${p.posY || 50}%`,
+                    }}
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-[13px] sm:text-[14px] truncate">
                     {p.title}
@@ -214,7 +242,7 @@ export default function Dashboard() {
               Add New Project
             </h2>
             <p className="text-[11px] text-gray-400 mt-1">
-              Akan kesimpen di Firebase
+              Atur posisi & background biar ga kepotong
             </p>
             <form onSubmit={handleAdd} className="mt-5 space-y-4">
               <div>
@@ -263,16 +291,71 @@ export default function Dashboard() {
                   className="w-full mt-1 text-[12px] text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#5ee9c1] file:text-black file:font-bold file:text-[11px]"
                 />
                 {form.image && (
-                  <img
-                    src={form.image}
-                    className="w-full h-[160px] sm:h-[180px] object-cover mt-3 rounded border border-white/10"
-                  />
+                  <>
+                    <div className="flex flex-wrap gap-2 mt-3 mb-2 items-center bg-[#0a0e17] p-2 rounded border border-white/10">
+                      <select
+                        value={imgFit}
+                        onChange={(e) => setImgFit(e.target.value)}
+                        className="bg-[#131824] border border-white/10 px-2 py-1 text-[11px] text-white rounded outline-none"
+                      >
+                        <option value="cover">Cover</option>
+                        <option value="contain">Contain</option>
+                      </select>
+
+                      {imgFit === "contain" && (
+                        <select
+                          value={imgBg}
+                          onChange={(e) => setImgBg(e.target.value)}
+                          className="bg-[#131824] border border-white/10 px-2 py-1 text-[11px] text-white rounded outline-none"
+                        >
+                          <option value="#000000">BG Hitam</option>
+                          <option value="#ffffff">BG Putih</option>
+                          <option value="#131824">BG Card</option>
+                          <option value="#0a0e17">BG Gelap</option>
+                          <option value="transparent">Transparan</option>
+                        </select>
+                      )}
+
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={imgPosY}
+                        onChange={(e) => setImgPosY(e.target.value)}
+                        className="flex-1 min-w-[80px] accent-[#5ee9c1]"
+                      />
+                      <span className="text-[10px] text-zinc-400 w-[35px]">
+                        {imgPosY}%
+                      </span>
+                    </div>
+                    <div
+                      className="w-full h-[220px] border border-white/10 overflow-hidden rounded-md flex items-center justify-center"
+                      style={{
+                        backgroundColor: imgFit === "contain" ? imgBg : "#000",
+                      }}
+                    >
+                      <img
+                        src={form.image}
+                        className="w-full h-full"
+                        style={{
+                          objectFit: imgFit,
+                          objectPosition: `50% ${imgPosY}%`,
+                        }}
+                        alt="preview"
+                      />
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-2">
+                      {imgFit === "contain"
+                        ? "Contain = logo full. Pilih BG sesuai warna logo lu."
+                        : "Cover = foto full. Geser slider buat atur posisi."}
+                    </p>
+                  </>
                 )}
               </div>
               <div className="flex gap-3 mt-6">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleCloseModal}
                   className="flex-1 border border-white/20 py-3 rounded text-[12px] font-bold"
                 >
                   Cancelled
